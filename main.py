@@ -14,6 +14,7 @@ from pydantic import Field
 from fastapi import FastAPI
 from fastapi import status
 from fastapi import Body
+from fastapi import Form
 
 app = FastAPI()
 
@@ -61,10 +62,28 @@ class Tweet(BaseModel):
     updated_at: Optional[datetime] = Field(default=None)
     by: User = Field(...)
 
+class LoginOut(BaseModel): 
+    email: EmailStr = Field(...)
+    message: str = Field(default="Login Successfully!")
+
+"""
+    # Auxiliar funcion 
+
+    ## funcion reed
+    def read_data(file):
+        with open("{}.json".format(file), "r+", encoding="utf-8") as f: 
+            return json.loads(f.read())
+
+    ## funcion write
+    def read_data(file, results):
+        with open("{}.json".format(file), "r+", encoding="utf-8") as f: 
+            f.seek(0)
+            f.write(json.dumps(results))
+"""
 # Path Operations
 
 ## Users
-
+USER_PATH = "users.json"
 ### Register a user
 @app.post(
     path="/signup",
@@ -91,7 +110,7 @@ def signup(user: UserRegister = Body(...)):
         - birth_date: str
     """
 
-    with open("users.json", "r+", encoding="utf-8") as f:
+    with open(USER_PATH, "r+", encoding="utf-8") as f:
         results = json.loads(f.read())
         user_dict = user.dict()
         user_dict["user_id"] = str(user_dict["user_id"])
@@ -104,13 +123,34 @@ def signup(user: UserRegister = Body(...)):
 ### Login a user
 @app.post(
     path="/login",
-    response_model=User,
+    response_model=LoginOut,
     status_code=status.HTTP_200_OK,
     summary="Login a User",
     tags=["Users"]
 )
-def login():
-    pass
+def login(
+    email: EmailStr = Form(...), 
+    password: str = Form(...)
+):
+    """
+    Login
+
+    This path operation login a user in the app
+
+    Parameters:
+        - Request body parameter
+            - email: EmailStr
+            - password: str
+
+    Returns a LoginOut model with username and message
+    """
+
+    with open(USER_PATH, "r", encoding="utf-8") as f:
+        datos = json.loads(f.read())
+        for user in datos:
+            if email == user['email'] and password == user['password']:
+                return LoginOut(email=email)
+        return LoginOut(email=email, message="Login Unsuccessfully!")
 
 ### Show all users
 @app.get(
@@ -136,7 +176,7 @@ def show_all_users():
         - last_name: str
         - birth_date: str
     """
-    with open("users.json", "r", encoding="utf-8") as f:
+    with open(USER_PATH, "r", encoding="utf-8") as f:
         results = json.loads(f.read())
         return results
 
@@ -174,7 +214,7 @@ def update_a_user():
     pass
 
 ## Tweets
-
+TWEETS_PATH = "tweets.json"
 ### Show all tweets
 @app.get(
     path="/",
@@ -200,7 +240,7 @@ def home():
         - updated_at: Optional[datetime]
         - by: User
     """
-    with open("tweets.json", "r", encoding="utf-8") as f:
+    with open(TWEETS_PATH, "r", encoding="utf-8") as f:
         results = json.loads(f.read())
         return results
 
@@ -230,7 +270,7 @@ def post(tweet: Tweet = Body(...)):
         - by: User
     """
 
-    with open("tweets.json", "r+", encoding="utf-8") as f:
+    with open(TWEETS_PATH, "r+", encoding="utf-8") as f:
         results = json.loads(f.read())
         tweet_dict = tweet.dict()
         tweet_dict["tweet_id"] = str(tweet_dict["tweet_id"])
@@ -266,7 +306,6 @@ def delete_a_tweet():
     pass
 
 ### Update a tweet
-
 @app.put(
     path="/tweets/{tweet_id}/update",
     response_model=Tweet,
