@@ -12,9 +12,11 @@ from pydantic import Field
 
 # FastAPI
 from fastapi import FastAPI
+from fastapi import HTTPException, status
 from fastapi import status
 from fastapi import Body
 from fastapi import Form
+from fastapi import Path
 
 app = FastAPI()
 
@@ -25,7 +27,7 @@ class UserBase(BaseModel):
     email: EmailStr = Field(...)
 
 class UserLogin(BaseModel):
-    password: str = Field(
+    password: str = Form(
         ...,
         min_length=8,
         max_length=64
@@ -45,7 +47,7 @@ class User(UserBase):
     birth_date: Optional[date] = Field(default=None)
 
 class UserRegister(User):
-    password: str = Field(
+    password: str = Form(
         ...,
         min_length=8,
         max_length=64
@@ -69,7 +71,7 @@ class LoginOut(BaseModel):
 """
     # Auxiliar funcion 
 
-    ## funcion reed
+    ## funcion read
     def read_data(file):
         with open("{}.json".format(file), "r+", encoding="utf-8") as f: 
             return json.loads(f.read())
@@ -188,8 +190,35 @@ def show_all_users():
     summary="Show a User",
     tags=["Users"]
 )
-def show_a_user():
-    pass
+def show_a_user(user_id: str = Path(
+    ...,
+    description="This is the user ID",
+    example="3fa85f64-5717-4562-b3fc-2c963f66afa6"
+)):
+    """
+    Show a Users
+
+    This path operation show a user in the app
+
+    Parameters:
+        - user_id: UUID
+
+    Returns a json list with all users in the app, with the following keys
+        - user_id: UUID
+        - email: EmailStr
+        - first_name: str
+        - last_name: str
+        - birth_date: str
+    """
+    with open(USER_PATH, "r", encoding="utf-8") as f:
+        datos = json.loads(f.read())
+        for user in datos:
+            if user_id == user['user_id']:
+                return user
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="¡This user don't exist!"
+        )
 
 ### Delete a user
 @app.delete(
