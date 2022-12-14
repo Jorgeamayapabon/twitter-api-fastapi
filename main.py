@@ -119,7 +119,7 @@ def signup(user: UserRegister = Body(...)):
         user_dict["birth_date"] = str(user_dict["birth_date"])
         results.append(user_dict)
         f.seek(0)
-        f.write(json.dumps(results))
+        f.write(json.dumps(results,indent=4, sort_keys=True))
         return user
 
 ### Login a user
@@ -228,8 +228,39 @@ def show_a_user(user_id: str = Path(
     summary="Delete a User",
     tags=["Users"]
 )
-def delete_a_user():
-    pass
+def delete_a_user(user_id: str = Path(
+    ...,
+    description="This is the user ID",
+    example="3fa85f64-5717-4562-b3fc-2c963f66afa6"
+)):
+    """
+    Delete a Users
+
+    This path operation delete a user in the app
+
+    Parameters:
+        - user_id: UUID
+
+    Returns a json list with all users in the app, with the following keys
+        - user_id: UUID
+        - email: EmailStr
+        - first_name: str
+        - last_name: str
+        - birth_date: str
+    """
+    with open(USER_PATH, "r+", encoding="utf-8") as f:
+        datos = json.loads(f.read())
+        for user in datos:
+            if user_id == user['user_id']:
+                datos.remove(user)
+                with open(USER_PATH, "w", encoding="utf-8") as f:
+                    f.seek(0)
+                    f.write(json.dumps(datos, indent=4, sort_keys=True))
+                return user
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="¡This user don't exist!"
+        )
 
 ### Show all tweets
 @app.put(
