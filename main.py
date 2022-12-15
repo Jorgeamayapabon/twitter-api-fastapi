@@ -265,7 +265,7 @@ def delete_a_user(user_id: str = Path(
             detail=detail_user
         )
 
-### Show all tweets
+### Update a tweet
 @app.put(
     path="/users/{user_id}/update",
     response_model=User,
@@ -426,7 +426,6 @@ def show_a_tweet(
             detail=detail_tweet
         )
     
-
 ### Delete a tweet
 @app.delete(
     path="/tweets/{tweet_id}/delete",
@@ -435,8 +434,41 @@ def show_a_tweet(
     summary="Delete a tweet",
     tags=["Tweets"]
 )
-def delete_a_tweet():
-    pass
+def delete_a_tweet(
+    tweet_id: str = Path(
+        ...,
+        description=description_tw_id,
+        example=example_messagge
+)):
+    """
+    Delete a Tweet
+
+    This path operation delete a tweet in the app
+
+    Parameters:
+        - Request body parameter
+            - tweet_id: UUID 
+
+    Returns a json with the basic tweet information
+        - tweet_id: UUID
+        - content: str
+        - created_at: datetime
+        - updated_at: Optional[datetime]
+        - by: User
+    """
+    with open(TWEETS_PATH, "r+", encoding="utf-8") as f:
+        datos = json.loads(f.read())
+        for tweet in datos:
+            if tweet["tweet_id"] == tweet_id:
+                datos.remove(tweet)
+                with open(TWEETS_PATH, 'w', encoding="utf-8") as f:
+                    f.seek(0)
+                    f.write(json.dumps(datos, indent=4, sort_keys=True))
+                return tweet
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=detail_tweet
+        )
     
 
 ### Update a tweet
