@@ -270,8 +270,30 @@ def delete_a_user(user_id: str = Path(
     summary="Update a User",
     tags=["Users"]
 )
-def update_a_user():
-    pass
+def update_a_user(
+    user_id: str = Path(
+        ...,
+        description="This is the user ID",
+        example="3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    ),
+    user: UserRegister = Body(...)
+):
+    with open(USER_PATH, 'r+', encoding="utf-8") as f:
+        datos = json.loads(f.read())
+        user_dict = user.dict()
+        user_dict["user_id"] = str(user_dict["user_id"])
+        user_dict["birth_date"] = str(user_dict["birth_date"])
+        for user in datos:
+            if user["user_id"] == user_id:
+                datos[datos.index(user)] = user_dict
+                with open(USER_PATH, 'w', encoding="utf-8") as f:
+                    f.seek(0)
+                    f.write(json.dumps(datos, indent=4, sort_keys=True))
+                return user 
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="¡This user ID doesn't exist!"
+        )
 
 ## Tweets
 TWEETS_PATH = "tweets.json"
