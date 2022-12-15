@@ -83,9 +83,12 @@ class LoginOut(BaseModel):
             f.write(json.dumps(results))
 """
 # Path Operations
+example_messagge="3fa85f64-5717-4562-b3fc-2c963f66afa6"
 
 ## Users
 USER_PATH = "users.json"
+description_user_id = "This is the user ID"
+detail_user = "¡This user doesn't exist!"
 ### Register a user
 @app.post(
     path="/signup",
@@ -192,8 +195,8 @@ def show_all_users():
 )
 def show_a_user(user_id: str = Path(
     ...,
-    description="This is the user ID",
-    example="3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    description=description_user_id,
+    example=example_messagge
 )):
     """
     Show a Users
@@ -217,7 +220,7 @@ def show_a_user(user_id: str = Path(
                 return user
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="¡This user don't exist!"
+            detail=detail_user
         )
 
 ### Delete a user
@@ -230,8 +233,8 @@ def show_a_user(user_id: str = Path(
 )
 def delete_a_user(user_id: str = Path(
     ...,
-    description="This is the user ID",
-    example="3fa85f64-5717-4562-b3fc-2c963f66afa6"
+    description=description_user_id,
+    example=example_messagge
 )):
     """
     Delete a Users
@@ -259,7 +262,7 @@ def delete_a_user(user_id: str = Path(
                 return user
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="¡This user don't exist!"
+            detail=detail_user
         )
 
 ### Show all tweets
@@ -274,10 +277,25 @@ def update_a_user(
     user_id: str = Path(
         ...,
         description="This is the user ID",
-        example="3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        example=example_messagge
     ),
     user: UserRegister = Body(...)
 ):
+    """
+    Update a Users
+
+    This path operation update a user in the app
+
+    Parameters:
+        - user_id: UUID
+
+    Returns a json list with all users in the app, with the following keys
+        - user_id: UUID
+        - email: EmailStr
+        - first_name: str
+        - last_name: str
+        - birth_date: str
+    """
     with open(USER_PATH, 'r+', encoding="utf-8") as f:
         datos = json.loads(f.read())
         user_dict = user.dict()
@@ -292,11 +310,14 @@ def update_a_user(
                 return user 
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="¡This user ID doesn't exist!"
+            detail=detail_user
         )
 
 ## Tweets
 TWEETS_PATH = "tweets.json"
+description_tw_id = "This is the tweet ID"
+detail_tweet = "¡This tweet doesn't exist!"
+
 ### Show all tweets
 @app.get(
     path="/",
@@ -362,7 +383,7 @@ def post(tweet: Tweet = Body(...)):
         tweet_dict["by"]["birth_date"] = str(tweet_dict["by"]["birth_date"])
         results.append(tweet_dict)
         f.seek(0)
-        f.write(json.dumps(results))
+        f.write(json.dumps(results, indent=4, sort_keys=True))
         return tweet
 
 ### Show a tweet
@@ -373,8 +394,38 @@ def post(tweet: Tweet = Body(...)):
     summary="Show a tweet",
     tags=["Tweets"]
 )
-def show_a_tweet():
-    pass
+def show_a_tweet(
+    tweet_id: str = Path(
+        ...,
+        description=description_tw_id,
+        example=example_messagge
+)):
+    """
+    Show a Tweet
+
+    This path operation show a tweet in the app
+
+    Parameters:
+        - Request body parameter
+            - tweet_id: str 
+
+    Returns a json with the basic tweet information
+        - tweet_id: UUID
+        - content: str
+        - created_at: datetime
+        - updated_at: Optional[datetime]
+        - by: User
+    """
+    with open(TWEETS_PATH, "r+", encoding="utf-8") as f:
+        datos = json.loads(f.read())
+        for tweet in datos:
+            if tweet["tweet_id"] == tweet_id:
+                return tweet
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=detail_tweet
+        )
+    
 
 ### Delete a tweet
 @app.delete(
@@ -386,6 +437,7 @@ def show_a_tweet():
 )
 def delete_a_tweet():
     pass
+    
 
 ### Update a tweet
 @app.put(
