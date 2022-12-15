@@ -1,15 +1,41 @@
 [
     {
         "by": {
-            "birth_date": "2022-11-22",
-            "email": "rocio@example.com",
-            "first_name": "Rocio",
-            "last_name": "Mendez",
+            "birth_date": "2022-12-15",
+            "email": "user@example.com",
+            "first_name": "string",
+            "last_name": "string",
             "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
         },
-        "content": "Me voy de tweet",
-        "created_at": "2022-11-21 20:28:55.398464",
-        "tweet_id": "3fa85f64-5717-4562-b3fc-2c963f66afa8",
-        "updated_at": "2022-11-22 01:29:13.044000+00:00"
+        "content": "string",
+        "created_at": "2022-12-15 16:13:11.543409",
+        "tweet_id": "3fa85f64-5717-4562-b3fc-2c963f66afa1",
+        "updated_at": "2022-12-15 21:13:20.959000+00:00"
+    },
+    {
+        "by": {
+            "birth_date": "2022-12-15",
+            "email": "user@example.com",
+            "first_name": "string",
+            "last_name": "string",
+            "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        },
+        "content": "string",
+        "created_at": "2022-12-15 15:59:35.420576",
+        "tweet_id": "3fa85f64-5717-4562-b3fc-2c963f66afa3",
+        "updated_at": "2022-12-15 21:02:16.041000+00:00"
+    },
+    {
+        "by": {
+            "birth_date": "2022-12-15",
+            "email": "user@example.com",
+            "first_name": "string",
+            "last_name": "string",
+            "user_id": "3fa85f64-5717-4562-b3fc-2c963f66afa6"
+        },
+        "content": "string",
+        "created_at": "2022-12-15 15:59:35.420576",
+        "tweet_id": "3fa85f64-5717-4562-b3fc-2c963f66afa4",
+        "updated_at": "2022-12-15 21:02:16.041000+00:00"
     }
 ]

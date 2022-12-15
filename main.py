@@ -470,7 +470,6 @@ def delete_a_tweet(
             detail=detail_tweet
         )
     
-
 ### Update a tweet
 @app.put(
     path="/tweets/{tweet_id}/update",
@@ -479,5 +478,46 @@ def delete_a_tweet(
     summary="Update a tweet",
     tags=["Tweets"]
 )
-def update_a_tweet():
-    pass
+def update_a_tweet(
+    tweet_id: str = Path(
+        ...,
+        description=description_tw_id,
+        example=example_messagge
+    ),
+    tweet: Tweet = Body(...)
+):
+    """
+    Update a Users
+
+    This path operation delete a user in the app
+
+    Parameters:
+        - user_id: UUID
+        - tweet: Tweet
+
+    Returns a json list with all users in the app, with the following keys
+        - user_id: UUID
+        - email: EmailStr
+        - first_name: str
+        - last_name: str
+        - birth_date: str
+    """
+    with open(TWEETS_PATH, "r+", encoding="utf-8") as f:
+        datos = json.loads(f.read())
+        tweet_dict = tweet.dict()
+        tweet_dict["tweet_id"] = str(tweet_dict["tweet_id"])
+        tweet_dict["created_at"] = str(tweet_dict["created_at"])
+        tweet_dict["updated_at"] = str(tweet_dict["updated_at"])
+        tweet_dict["by"]["user_id"] = str(tweet_dict["by"]["user_id"])
+        tweet_dict["by"]["birth_date"] = str(tweet_dict["by"]["birth_date"])
+        for tweet in datos:
+            if tweet["tweet_id"] == tweet_id:
+                datos[datos.index(tweet)] = tweet_dict
+                with open(TWEETS_PATH, "w", encoding="utf-8") as f:
+                    f.seek(0)
+                    f.write(json.dumps(datos, indent=4, sort_keys=True))
+                return tweet
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=detail_tweet
+        )
